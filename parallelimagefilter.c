@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include <getopt.h>
+
+
+#define N 50
 
 typedef struct 
 {
@@ -14,15 +18,44 @@ typedef struct
 void imagefilter(char *, char *, char *);
 
 int main (int argc, char *argv[]){
+int op;
+char input1[N]="";
+char input2[N]="";
+char input3[N]="";
 
-	if (argc!=4){
+
+	/*if (argc!=4){
 	printf("you should pass four arguments\n");
 	exit(EXIT_FAILURE);
+	
+	}*/
+	
+	
+	
+	while((op=getopt(argc,argv,"i:o:k:")) !=-1){
+	
+	switch(op){
+	case 'i':
+		strcpy(input1,optarg);
+		break;
+	case 'o':
+		strcpy(input2,optarg);
+		break;
+	case 'k':
+		strcpy(input3,optarg);
+		break;
+	
+	
+	default:
+		printf("error!!");
+		break;
+	
+	}
 	
 	}
 	
 
-	imagefilter(argv[1], argv[2], argv[3]);
+	imagefilter(input1, input2, input3);
 	
 	return 0;
 }
