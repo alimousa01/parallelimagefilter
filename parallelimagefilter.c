@@ -3,9 +3,25 @@
 #include <string.h>
 #include <stdint.h>
 #include <getopt.h>
+#include <pthread.h>
+#include <unistd.h>
 
 
 #define N 50
+#define n 250
+#define THREAD_NUM 8
+
+typedef struct Task
+{
+    void* (*taskFunction)(char*, char*, char*);
+    char *arg1, *arg2, *arg3;
+
+} Task;
+
+Task taskQueue[n]={0};
+int taskCount = 0;
+pthread_mutex_t mutexQueue;
+pthread_cond_t condQueue;
 
 typedef struct 
 {
@@ -15,7 +31,50 @@ typedef struct
 
 } pixel_RGB;
 
-void imagefilter(char *, char *, char *);
+void* imagefilter(char *, char *, char *);
+
+
+void executeTask(Task* task)
+{
+    task->taskFunction(task->arg1, task->arg2,task->arg3);
+}
+
+void submitTask(Task task)
+{
+
+    pthread_mutex_lock(&mutexQueue);
+    taskQueue[taskCount] = task;
+    taskCount++;
+    pthread_mutex_unlock(&mutexQueue);
+    pthread_cond_signal(&condQueue);
+
+}
+
+void* startThread()
+{
+    while (1)
+    {
+        Task task;
+        int found=0;
+        if(taskCount > 0)
+        {
+            found = 1;
+            task = taskQueue[0];
+            for (int i = 0; i < taskCount - 1; i++)
+            {
+                taskQueue[i] = taskQueue[i + 1];
+            }
+            taskCount--;
+        }
+
+        if (found ==1)
+        {
+            executeTask(&task);
+        }
+        return NULL;
+    }
+}
+//////////////////////////////////
 
 int main (int argc, char *argv[]){
 int op;
@@ -24,11 +83,12 @@ char input2[N]="";
 char input3[N]="";
 
 
-	/*if (argc!=4){
-	printf("you should pass four arguments\n");
+	if (argc!=7){
+	printf("you should pass seven arguments\n");
+	printf("\n for example./a.out -i peppers.p3.ppm -o peppers01.ppm -k 0,-1,0,-1,5,-1,0,-1,0\n");
 	exit(EXIT_FAILURE);
 	
-	}*/
+	}
 	
 	
 	
@@ -53,15 +113,65 @@ char input3[N]="";
 	}
 	
 	}
-	
+	pthread_t th[THREAD_NUM];
+    pthread_mutex_init(&mutexQueue, NULL);
+    pthread_cond_init(&condQueue, NULL);
+    int i=0;
 
-	imagefilter(input1, input2, input3);
+
+
+
+    for (i = 0; i < THREAD_NUM; i++)  // creating the threads
+    {
+        if (pthread_create(&th[i], NULL, &startThread, NULL) != 0)
+        {
+
+            perror("Failed to create the thread");
+        }
+    }
+
+
+
+
+
+    Task t =
+    {
+        .taskFunction = &imagefilter,
+        .arg1 = input1,
+        .arg2=  input2,
+        .arg3=  input3
+    };
+    submitTask(t);
+
+
+
+
+
+
+    for (int i = 0; i < THREAD_NUM; i++)   // destrying the threads
+    {
+        if (pthread_join(th[i], NULL) != 0)
+        {
+            perror("Failed to join the thread");
+        }
+
+    }
+
+
+
+
+
+    pthread_mutex_destroy(&mutexQueue);
+    pthread_cond_destroy(&condQueue);
+
+
+	
 	
 	return 0;
 }
 
 
-void imagefilter(char *path1, char *path2, char *path3){
+void* imagefilter(char *path1, char *path2, char *path3){
 
 
 FILE* output=NULL;
@@ -186,6 +296,8 @@ FILE* output=NULL;
    free(image);
    free(kernel);
    fclose(output);
+   
+   return NULL;
 
 }
 
