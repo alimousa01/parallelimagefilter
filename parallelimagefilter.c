@@ -85,7 +85,7 @@ char input3[N]="";
 
 	if (argc!=7){
 	printf("you should pass seven arguments\n");
-	printf("\n for example./a.out -i peppers.p3.ppm -o peppers01.ppm -k 0,-1,0,-1,5,-1,0,-1,0\n");
+	printf("\nfor example./a.out -i inputimage.p3.ppm -o outputimage.ppm -k 0,-1,0,-1,5,-1,0,-1,0\n");
 	exit(EXIT_FAILURE);
 	
 	}
