@@ -32,48 +32,11 @@ typedef struct
 } pixel_RGB;
 
 void* imagefilter(char *, char *, char *);
+void executeTask(Task* );
+void submitTask(Task );
+void* startThread();
 
 
-void executeTask(Task* task)
-{
-    task->taskFunction(task->arg1, task->arg2,task->arg3);
-}
-
-void submitTask(Task task)
-{
-
-    pthread_mutex_lock(&mutexQueue);
-    taskQueue[taskCount] = task;
-    taskCount++;
-    pthread_mutex_unlock(&mutexQueue);
-    pthread_cond_signal(&condQueue);
-
-}
-
-void* startThread()
-{
-    while (1)
-    {
-        Task task;
-        int found=0;
-        if(taskCount > 0)
-        {
-            found = 1;
-            task = taskQueue[0];
-            for (int i = 0; i < taskCount - 1; i++)
-            {
-                taskQueue[i] = taskQueue[i + 1];
-            }
-            taskCount--;
-        }
-
-        if (found ==1)
-        {
-            executeTask(&task);
-        }
-        return NULL;
-    }
-}
 //////////////////////////////////
 
 int main (int argc, char *argv[]){
@@ -168,6 +131,48 @@ char input3[N]="";
 	
 	
 	return 0;
+}
+
+
+void executeTask(Task* task)
+{
+    task->taskFunction(task->arg1, task->arg2,task->arg3);
+}
+
+void submitTask(Task task)
+{
+
+    pthread_mutex_lock(&mutexQueue);
+    taskQueue[taskCount] = task;
+    taskCount++;
+    pthread_mutex_unlock(&mutexQueue);
+    pthread_cond_signal(&condQueue);
+
+}
+
+void* startThread()
+{
+    while (1)
+    {
+        Task task;
+        int found=0;
+        if(taskCount > 0)
+        {
+            found = 1;
+            task = taskQueue[0];
+            for (int i = 0; i < taskCount - 1; i++)
+            {
+                taskQueue[i] = taskQueue[i + 1];
+            }
+            taskCount--;
+        }
+
+        if (found ==1)
+        {
+            executeTask(&task);
+        }
+        return NULL;
+    }
 }
 
 
