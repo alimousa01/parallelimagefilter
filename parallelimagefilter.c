@@ -5,31 +5,14 @@
 #include <getopt.h>
 #include <pthread.h>
 #include <unistd.h>
+#include "globale.h"
 
 
 #define N 50
-#define n 250
-#define THREAD_NUM 8
 
-typedef struct Task
-{
-    void* (*taskFunction)(char*, char*, char*);
-    char *arg1, *arg2, *arg3;
+#define THREAD_NUM 6
 
-} Task;
 
-Task taskQueue[n]={0};
-int taskCount = 0;
-pthread_mutex_t mutexQueue;
-pthread_cond_t condQueue;
-
-typedef struct 
-{
-	double r;
-	double g;
-	double b;
-
-} pixel_RGB;
 
 void* imagefilter(char *, char *, char *);
 void executeTask(Task* );
@@ -305,10 +288,3 @@ FILE* output=NULL;
    return NULL;
 
 }
-
-	
-
-  
-   
-   
-
