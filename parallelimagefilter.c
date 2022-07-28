@@ -20,8 +20,6 @@ typedef struct Task
 
 Task taskQueue[n]={0};
 
-pthread_mutex_t mutexQueue;
-pthread_cond_t condQueue;
 
 typedef struct
 {
@@ -40,6 +38,8 @@ void* startThread(void *);
 //////////////////////////////////
 
 int main (int argc, char *argv[]){
+pthread_mutex_t mutexQueue;
+pthread_cond_t condQueue;
 int taskCount = 0;
 int op;
 char input1[N]="";
@@ -138,7 +138,8 @@ void executeTask(Task* task)
 
 void submitTask(Task task,void *taskCount)
 {
-
+	pthread_mutex_t mutexQueue;
+	pthread_cond_t condQueue;
     pthread_mutex_lock(&mutexQueue);
     taskQueue[(*(int*)taskCount)] = task;
     (*(int*)taskCount)++;
