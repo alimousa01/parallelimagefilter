@@ -9,7 +9,7 @@
 
 #define N 50
 #define n 250
-#define THREAD_NUM 8
+#define THREAD_NUM 4
 
 typedef struct Task
 {
@@ -274,9 +274,6 @@ FILE* output=NULL;
 		if(filterimage[i][k].g<0) filterimage[i][k].g=0;
 		if(filterimage[i][k].b<0) filterimage[i][k].b=0;
 	}}
-
-
-
 
    fprintf(output,"P%d\n%d %d\n%u\n",format,x,y,max);
    int count=0;
