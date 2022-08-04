@@ -142,6 +142,7 @@ fclose(fp);
    free(image);
    free(kernel);
    fclose(output);
+   free(filterimage);
 
    return NULL;
 
